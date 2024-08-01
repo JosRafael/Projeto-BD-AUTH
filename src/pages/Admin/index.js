@@ -10,6 +10,8 @@ import {
   query,
   orderBy,
   where,
+  doc,
+  deleteDoc
 } from 'firebase/firestore'
 export default function Admin() {
   const [tarefaInput, setTarefaInput] = useState('')
@@ -71,6 +73,16 @@ export default function Admin() {
   async function handleLogout() {
     await signOut(auth)
   }
+  async function handleDelete(id){
+    const docRef = doc(db, "tarefas", id)
+    await deleteDoc(docRef)
+    .then(()=>{
+        alert("Deletado com sucesso!")
+    })
+    .catch((e)=>{
+        console.error('erro ao deletar', e)
+    })
+  }
 
   return (
     <div className="admin-container">
@@ -94,7 +106,7 @@ export default function Admin() {
 
           <div>
             <button>Editar</button>
-            <button className="btn-delete">Concluir</button>
+            <button onClick={()=> handleDelete(item.id)}className="btn-delete">Concluir</button>
           </div>
         </article>
       ))}
