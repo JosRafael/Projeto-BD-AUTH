@@ -11,11 +11,14 @@ import {
   orderBy,
   where,
   doc,
-  deleteDoc
+  deleteDoc,
+  updateDoc,
 } from 'firebase/firestore'
 export default function Admin() {
   const [tarefaInput, setTarefaInput] = useState('')
-  const [user, setUser] = useState('')
+  const [user, setUser] = useState({})
+  const [edit, setEdit] = useState('')
+
   const [tarefas, setTarefas] = useState([])
 
   useEffect(() => {
@@ -56,6 +59,10 @@ export default function Admin() {
       alert('Digite uma tarefa')
       return
     }
+    if (edit?.id) {
+      handleUpdateTarefa()
+      return
+    }
     await addDoc(collection(db, 'tarefas'), {
       tarefa: tarefaInput,
       created: new Date(),
@@ -73,18 +80,38 @@ export default function Admin() {
   async function handleLogout() {
     await signOut(auth)
   }
-  async function handleDelete(id){
-    const docRef = doc(db, "tarefas", id)
+
+  async function handleDelete(id) {
+    const docRef = doc(db, 'tarefas', id)
     await deleteDoc(docRef)
-    .then(()=>{
-        alert("Deletado com sucesso!")
-    })
-    .catch((e)=>{
+      .then(() => {
+        alert('Deletado com sucesso!')
+      })
+      .catch((e) => {
         console.error('erro ao deletar', e)
-    })
+      })
   }
-  function editTarefa(item){
+
+  function editTarefa(item) {
     setTarefaInput(item.tarefa)
+    setEdit(item)
+  }
+
+  async function handleUpdateTarefa() {
+    const docRef = doc(db, 'tarefas', edit?.id)
+    await updateDoc(docRef, {
+      tarefa: tarefaInput,
+    })
+      .then(() => {
+        console.log('TAREFA ATUALIZADA')
+        setTarefaInput('')
+        setEdit({})
+      })
+      .catch((e) => {
+        console.error('erro ao atualizar', e)
+        setTarefaInput('')
+        setEdit({})
+      })
   }
 
   return (
@@ -98,9 +125,19 @@ export default function Admin() {
           onChange={(e) => setTarefaInput(e.target.value)}
         />
 
-        <button className="btn-register" type="submit">
-          Registrar tarefa
-        </button>
+        {Object.keys(edit).length > 0 ? (
+          <button
+            className="btn-register"
+            style={{ backgroundColor: '#6add39' }}
+            type="submit"
+          >
+            Atualizar tarefa
+          </button>
+        ) : (
+          <button className="btn-register" type="submit">
+            Registrar tarefa
+          </button>
+        )}
       </form>
 
       {tarefas.map((item) => (
@@ -108,11 +145,17 @@ export default function Admin() {
           <p>{item.tarefa}</p>
 
           <div>
-            <button onClick={()=> editTarefa(item)}>Editar</button>
-            <button onClick={()=> handleDelete(item.id)}className="btn-delete">Concluir</button>
+            <button onClick={() => editTarefa(item)}>Editar</button>
+            <button
+              onClick={() => handleDelete(item.id)}
+              className="btn-delete"
+            >
+              Concluir
+            </button>
           </div>
         </article>
       ))}
+      
       <button onClick={handleLogout} className="btn-logout">
         Sair
       </button>
