@@ -1,44 +1,55 @@
-import { useState } from 'react'
-import "./home.css"
-import { Link } from 'react-router-dom'
+import { useState } from "react";
+import "./home.css";
+import { Link } from "react-router-dom";
+import { auth } from "../../firebaseConnection";
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useNavigate } from "react-router-dom";
+export default function Home() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-export default function Home(){
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  async function handleLogin(e) {
+    e.preventDefault();
 
-  function handleLogin(e){
-    e.preventDefault()
-
-    if(email !== "" && password !==""){
-      alert("TESTE!")
-    }else{
-      alert("PREENCHA TODOS OS CAMPOS")
+    if (email !== "" && password !== "") {
+      await signInWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        navigate("/admin", {replace: true});
+      })
+      .catch((e) => {
+        console.error("erro ao realizar login", e);
+      });
+    } else {
+      alert("PREENCHA TODOS OS CAMPOS");
     }
   }
 
-  return(
-    <div className='home-container'>
+  return (
+    <div className="home-container">
       <h1>Lista de tarefas</h1>
       <span>Gerencie sua agenda de forma fácil</span>
 
-      <form className='form' onSubmit={handleLogin}>
-        <input 
-          type='text'
-          placeholder='Digite seu email'
+      <form className="form" onSubmit={handleLogin}>
+        <input
+          type="text"
+          placeholder="Digite seu email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <input 
+        <input
           autoComplete="off"
-          type='password'
-          placeholder='*******'
+          type="password"
+          placeholder="*******"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button type='submit'>Acessar</button>
+        <button type="submit">Acessar</button>
       </form>
-      <Link className="button-link" to='/register'>Ainda não possui uma conta? Cadastre-se</Link>
+      <Link className="button-link" to="/register">
+        Ainda não possui uma conta? Cadastre-se
+      </Link>
     </div>
-  )
+  );
 }
