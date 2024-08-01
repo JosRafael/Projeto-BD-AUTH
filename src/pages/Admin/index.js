@@ -83,6 +83,9 @@ export default function Admin() {
         console.error('erro ao deletar', e)
     })
   }
+  function editTarefa(item){
+    setTarefaInput(item.tarefa)
+  }
 
   return (
     <div className="admin-container">
@@ -105,7 +108,7 @@ export default function Admin() {
           <p>{item.tarefa}</p>
 
           <div>
-            <button>Editar</button>
+            <button onClick={()=> editTarefa(item)}>Editar</button>
             <button onClick={()=> handleDelete(item.id)}className="btn-delete">Concluir</button>
           </div>
         </article>
